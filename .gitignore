@@ -1,0 +1,33 @@
+# Firebase Service Account Key (NUNCA commite!)
+src/Configueracoes/serviceAccountKey.json
+
+# Logs
+src/logs/
+*.log
+
+# Dependencies
+vendor/
+node_modules/
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build
+dist/
+build/
+
+# Cache
+.cache/
+tmp/

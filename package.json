@@ -1,0 +1,308 @@
+{
+  "name": "ftp-manager-vscode",
+  "displayName": "FTP Manager",
+  "description": "Complete FTP operations extension for VS Code - Upload, Download, and Sync files easily",
+  "version": "1.0.11",
+  "publisher": "ftp-manager",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/endreodev/ftp-manager-vscode"
+  },
+  "engines": {
+    "vscode": "^1.105.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "ftp",
+    "sftp",
+    "upload",
+    "download",
+    "sync",
+    "file manager"
+  ],
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "ftpManager.connect",
+        "title": "FTP: Connect to Server",
+        "icon": "$(plug)"
+      },
+      {
+        "command": "ftpManager.disconnect",
+        "title": "FTP: Disconnect",
+        "icon": "$(debug-disconnect)"
+      },
+      {
+        "command": "ftpManager.uploadFile",
+        "title": "FTP: Upload File",
+        "icon": "$(cloud-upload)"
+      },
+      {
+        "command": "ftpManager.uploadFolder",
+        "title": "FTP: Upload Folder",
+        "icon": "$(folder-opened)"
+      },
+      {
+        "command": "ftpManager.uploadMultiple",
+        "title": "FTP: Upload Multiple Files",
+        "icon": "$(files)"
+      },
+      {
+        "command": "ftpManager.downloadFile",
+        "title": "FTP: Download File",
+        "icon": "$(cloud-download)"
+      },
+      {
+        "command": "ftpManager.syncFolder",
+        "title": "FTP: Sync Folder",
+        "icon": "$(sync)"
+      },
+      {
+        "command": "ftpManager.refresh",
+        "title": "FTP: Refresh",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "ftpManager.deleteFile",
+        "title": "FTP: Delete File",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "ftpManager.createFolder",
+        "title": "FTP: Create Folder",
+        "icon": "$(new-folder)"
+      },
+      {
+        "command": "ftpManager.addConnection",
+        "title": "FTP: Add New Connection",
+        "icon": "$(add)"
+      },
+      {
+        "command": "ftpManager.editConnection",
+        "title": "FTP: Edit Connection",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "ftpManager.deleteConnection",
+        "title": "FTP: Delete Connection",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "ftpManager.downloadFileFromTree",
+        "title": "Download File",
+        "icon": "$(cloud-download)"
+      },
+      {
+        "command": "ftpManager.deleteFileFromTree",
+        "title": "Delete File",
+        "icon": "$(trash)"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "ftpManager",
+          "title": "FTP Manager",
+          "icon": "$(server-process)"
+        }
+      ]
+    },
+    "views": {
+      "ftpManager": [
+        {
+          "id": "ftpExplorer",
+          "name": "Remote Files",
+          "when": "ftpManager.connected",
+          "icon": "$(server-process)"
+        },
+        {
+          "id": "ftpConnections",
+          "name": "Connections",
+          "icon": "$(plug)"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "ftpManager.addConnection",
+          "when": "view == ftpConnections",
+          "group": "navigation@1"
+        },
+        {
+          "command": "ftpManager.connect",
+          "when": "view == ftpConnections",
+          "group": "navigation@2"
+        },
+        {
+          "command": "ftpManager.refresh",
+          "when": "view == ftpExplorer",
+          "group": "navigation"
+        },
+        {
+          "command": "ftpManager.disconnect",
+          "when": "view == ftpExplorer",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "ftpManager.downloadFileFromTree",
+          "when": "view == ftpExplorer && viewItem == ftpFile",
+          "group": "file@1"
+        },
+        {
+          "command": "ftpManager.deleteFileFromTree",
+          "when": "view == ftpExplorer && viewItem == ftpFile", 
+          "group": "file@2"
+        },
+        {
+          "command": "ftpManager.editConnection",
+          "when": "view == ftpConnections && viewItem == ftpConnection",
+          "group": "connection@1"
+        },
+        {
+          "command": "ftpManager.deleteConnection",
+          "when": "view == ftpConnections && viewItem == ftpConnection",
+          "group": "connection@2"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "ftpManager.uploadFile",
+          "when": "!explorerResourceIsFolder",
+          "group": "ftpManager@1"
+        },
+        {
+          "command": "ftpManager.uploadFolder",
+          "when": "explorerResourceIsFolder",
+          "group": "ftpManager@1"
+        },
+        {
+          "command": "ftpManager.uploadMultiple",
+          "group": "ftpManager@2"
+        },
+        {
+          "command": "ftpManager.syncFolder",
+          "when": "explorerResourceIsFolder",
+          "group": "ftpManager@3"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "FTP Manager",
+      "properties": {
+        "ftpManager.connections": {
+          "type": "array",
+          "scope": "resource",
+          "default": [],
+          "description": "List of FTP connections",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Connection name"
+              },
+              "host": {
+                "type": "string",
+                "description": "FTP server host"
+              },
+              "port": {
+                "type": "number",
+                "default": 21,
+                "description": "FTP server port"
+              },
+              "username": {
+                "type": "string",
+                "description": "FTP username"
+              },
+              "password": {
+                "type": "string",
+                "description": "FTP password"
+              },
+              "path": {
+                "type": "string",
+                "default": "/",
+                "description": "Remote path"
+              },
+              "secure": {
+                "type": "boolean",
+                "default": false,
+                "description": "Use FTPS"
+              }
+            }
+          }
+        ,
+        "ftpManager.telnet": {
+          "type": "object",
+          "scope": "resource",
+          "description": "Telnet settings stored per workspace",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false,
+              "description": "Enable Telnet features for this workspace"
+            },
+            "host": {
+              "type": "string",
+              "default": "",
+              "description": "Telnet host per workspace"
+            },
+            "port": {
+              "type": "number",
+              "default": 23,
+              "description": "Telnet port per workspace"
+            },
+            "username": {
+              "type": "string",
+              "default": "",
+              "description": "Username for telnet in workspace"
+            },
+            "password": {
+              "type": "string",
+              "default": "",
+              "description": "Password for telnet in workspace"
+            }
+          }
+        }
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "npm run check-types && npm run lint && node esbuild.js",
+    "watch": "npm-run-all -p watch:*",
+    "watch:esbuild": "node esbuild.js --watch",
+    "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
+    "package": "npm run check-types && npm run lint && node esbuild.js --production",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "22.x",
+    "@types/vscode": "^1.105.0",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2",
+    "esbuild": "^0.27.0",
+    "eslint": "^9.39.1",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.3"
+  },
+  "dependencies": {
+    "@types/ftp": "^0.3.36",
+    "basic-ftp": "^5.0.5",
+    "ftp": "^0.3.10"
+  }
+}
