@@ -1,139 +1,152 @@
-# FTP Manager - Extensão VS Code
+# FTP Manager - VS Code Extension
 
-Uma extensão completa para operações FTP no Visual Studio Code. Permite upload, download e sincronização de arquivos de forma fácil e intuitiva.
+A complete extension for FTP operations in Visual Studio Code. Allows file upload, download, and synchronization in an easy and intuitive way.
 
-## 🚀 Funcionalidades
+## 🚀 Features
 
-- **Conexão FTP/FTPS**: Conecte-se facilmente a servidores FTP e FTPS
-- **Navegação de Arquivos**: Explore arquivos e pastas do servidor em uma árvore lateral
-- **Upload de Arquivos**: Envie arquivos individuais ou pastas inteiras
-- **Download de Arquivos**: Baixe arquivos diretamente do servidor
-- **Sincronização**: Sincronize pastas locais com o servidor
-- **Gerenciamento de Conexões**: Salve e reutilize configurações de conexão
-- **Interface Intuitiva**: Comandos acessíveis via menu de contexto e barra lateral
+- **FTP/FTPS Connection**: Easily connect to FTP and FTPS servers
+- **File Navigation**: Browse server files and folders in a sidebar tree
+- **File Upload**: Send individual files or entire folders
+- **File Download**: Download files directly from the server
+- **Synchronization**: Sync local folders with the server
+- **Connection Management**: Save and reuse connection settings
+- **Intuitive Interface**: Commands accessible via context menu and sidebar
 
-## 📦 Instalação
+## 📦 Installation
 
-### Instalação para Teste/Desenvolvimento
+### Installation for Testing/Development
 
-1. **Clone ou baixe este projeto**
-2. **Abra o terminal na pasta do projeto**
-3. **Instale as dependências:**
-   ```bash
-   npm install
-   ```
-4. **Compile a extensão:**
-   npm run compile
-   ```
-5. **Abra o projeto no VS Code**
-6. **Pressione F5 para testar a extensão**
-   - Isso abrirá uma nova janela do VS Code com a extensão carregada
+1. **Clone or download this project**
+2. **Open terminal in the project folder**
+3. **Install dependencies:**
+    ```bash
+    npm install
+    ```
+4. **Compile the extension:**
+    ```bash
+    npm run compile
+    ```
+5. **Open the project in VS Code**
+6. **Press F5 to test the extension**
+    - This will open a new VS Code window with the extension loaded
 
-### Instalação via VSIX (Recomendado)
-   - Vá para Extensões (Ctrl+Shift+X)
-   - Clique nos três pontos (...) no topo
-   - Selecione "Install from VSIX..."
-   - Escolha o arquivo .vsix gerado
+### Installation via VSIX (Recommended)
+    - Go to Extensions (Ctrl+Shift+X)
+    - Click the three dots (...) at the top
+    - Select "Install from VSIX..."
+    - Choose the generated .vsix file
 
+## 🔌 How to Use
 
-- **Opção 1**: Use o comando `Ctrl+Shift+P` → "FTP: Connect to Server"
-- **Opção 2**: Clique no ícone de conexão no painel "FTP Manager"
+### 1. Connect to FTP Server
 
-Preencha as informações solicitadas:
-- Nome da conexão
-- Endereço do servidor
-- Porta (padrão: 21)
-- Nome de usuário
-- Senha
-- Caminho remoto inicial
-- Usar FTPS (sim/não)
+- **Option 1**: Use the command `Ctrl+Shift+P` → "FTP: Connect to Server"
+- **Option 2**: Click the connection icon in the "FTP Manager" panel
 
-### 2. Navegar nos Arquivos
+Fill in the requested information:
+- Connection name
+- Server address
+- Port (default: 21)
+- Username
+- Password
+- Initial remote path
+- Use FTPS (yes/no)
 
-Após conectar, você verá a árvore de arquivos do servidor no painel lateral "FTP Manager".
+### 2. Browse Files
 
-- **Pasta completa**: Clique com o botão direito na pasta → "FTP: Sync Folder"
+After connecting, you'll see the server file tree in the "FTP Manager" sidebar panel.
 
-### 4. Download de Arquivos
+### 3. Upload Files
 
-- Clique no arquivo na árvore FTP ou
-- **Deletar arquivo**: Clique com o botão direito no arquivo → "FTP: Delete File"
-- **Desconectar**: Clique no ícone de desconexão
+- **Single file**: Right-click on local file → "FTP: Upload File"
+- **Complete folder**: Right-click on folder → "FTP: Sync Folder"
 
-## ⚙️ Configurações
+### 4. Download Files
 
-A extensão adiciona as seguintes configurações no VS Code:
+- Click on file in FTP tree or
+- Right-click on file → "FTP: Download File"
 
-- `ftpManager.connections`: Lista de conexões salvas
+### 5. Other Operations
 
-Para editar as configurações:
-1. Vá para File → Preferences → Settings
-2. Procure por "FTP Manager"
+- **Delete file**: Right-click on file → "FTP: Delete File"
+- **Disconnect**: Click the disconnect icon
 
-## 🔧 Comandos Disponíveis
+## ⚙️ Settings
 
-- `FTP: Connect to Server` - Conectar a um servidor FTP
-- `FTP: Disconnect` - Desconectar do servidor atual
-- `FTP: Upload File` - Enviar arquivo selecionado
-- `FTP: Download File` - Baixar arquivo selecionado
-- `FTP: Refresh` - Atualizar lista de arquivos
-- `FTP: Create Folder` - Criar nova pasta
-- `FTP: Delete File` - Deletar arquivo selecionado
+The extension adds the following VS Code settings:
 
-## 🛠️ Desenvolvimento
-- Node.js (versão 18 ou superior)
-- npm ou yarn
+- `ftpManager.connections`: List of saved connections
+
+To edit settings:
+1. Go to File → Preferences → Settings
+2. Search for "FTP Manager"
+
+## 🔧 Available Commands
+
+- `FTP: Connect to Server` - Connect to an FTP server
+- `FTP: Disconnect` - Disconnect from current server
+- `FTP: Upload File` - Upload selected file
+- `FTP: Download File` - Download selected file
+- `FTP: Refresh` - Refresh file list
+- `FTP: Create Folder` - Create new folder
+- `FTP: Delete File` - Delete selected file
+
+## 🛠️ Development
+
+### Requirements
+- Node.js (version 18 or higher)
+- npm or yarn
 - VS Code
 
-### Executar em Desenvolvimento
+### Run in Development
 
-1. Clone o repositório
-2. Execute `npm install`
-3. Execute `npm run compile`
-4. Pressione F5 no VS Code para testar
+1. Clone the repository
+2. Run `npm install`
+3. Run `npm run compile`
+4. Press F5 in VS Code to test
 
-### Gerar Pacote
+### Generate Package
 
 ```bash
 npm install -g vsce
 vsce package
 ```
 
-## 📝 Problemas Conhecidos
+## 📝 Known Issues
 
-- Conexões FTPS podem requerer configurações adicionais dependendo do servidor
-- Sincronização de pastas grandes pode demorar
-- Alguns servidores podem ter limitações de conexões simultâneas
+- FTPS connections may require additional settings depending on the server
+- Synchronization of large folders may take time
+- Some servers may have simultaneous connection limitations
 
 ## 🔄 Changelog
 
 ### 1.0.0
 
-- Lançamento inicial
-- Conexão FTP/FTPS
-- Upload/Download de arquivos
-- Sincronização de pastas
-- Interface de usuário completa
-- Gerenciamento de conexões
+- Initial release
+- FTP/FTPS connection
+- File upload/download
+- Folder synchronization
+- Complete user interface
+- Connection management
 
-## 📄 Licença
+## 📄 License
 
 MIT License
 
-## 🤝 Contribuições
+## 🤝 Contributions
 
-Contribuições são bem-vindas! Por favor:
+Contributions are welcome! Please:
 
-1. Fork o projeto
-2. Crie uma branch para sua feature
-3. Commit suas mudanças
-4. Push para a branch
-5. Abra um Pull Request
+1. Fork the project
+2. Create a branch for your feature
+3. Commit your changes
+4. Push to the branch
+5. Open a Pull Request
 
-## 📞 Suporte
+## 📞 Support
 
-Para relatar bugs ou solicitar funcionalidades, por favor abra uma issue no GitHub.
+To report bugs or request features, please open an issue on GitHub.
 
 ---
 
-**Aproveite o FTP Manager! 🎉**
+**Enjoy FTP Manager! 🎉**
