@@ -162,3 +162,9 @@ Para relatar bugs ou solicitar funcionalidades, por favor abra uma issue no GitH
 ---
 
 **Aproveite o FTP Manager! 🎉**
+
+## Documentação
+
+- Gerenciamento de conexões: [Gerenciamento de Conexões](./GERENCIAMENTO_CONEXOES.md)
+- Instruções de instalação (PT): [Instruções de Instalação](./INSTRUCOES_INSTALACAO.md)
+- English docs: [README.md](./README.md), [Managing Connections](./MANAGING_CONNECTIONS.md), [Installation Instructions](./INSTALLATION_INSTRUCTIONS.md)
