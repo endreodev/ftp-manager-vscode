@@ -39,6 +39,14 @@ A complete extension for FTP operations in Visual Studio Code. Allows file uploa
 ## 🔌 How to Use
 
 ### 1. Connect to FTP Server
+<img width="988" height="851" alt="image" src="https://github.com/user-attachments/assets/2b20d318-92af-4d9e-95d8-b4984c7a7aa6" />
+
+<img width="1259" height="845" alt="image" src="https://github.com/user-attachments/assets/8942a90c-56ed-46ae-831e-2f5e9d2ef6af" />
+
+<img width="492" height="938" alt="image" src="https://github.com/user-attachments/assets/a0fa6e66-a108-4bf0-ab89-62a67674c541" />
+
+<img width="464" height="962" alt="image" src="https://github.com/user-attachments/assets/921372ca-b71b-4ea2-b096-156903507ea9" />
+
 
 - **Option 1**: Use the command `Ctrl+Shift+P` → "FTP: Connect to Server"
 - **Option 2**: Click the connection icon in the "FTP Manager" panel
