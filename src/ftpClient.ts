@@ -264,6 +264,28 @@ export class FtpClient {
         });
     }
 
+    async deleteFolder(remotePath: string): Promise<void> {
+        return this.queueOperation(async () => {
+            if (!this.client) {
+                throw new Error('Não conectado ao servidor FTP');
+            }
+
+            if (!remotePath || typeof remotePath !== 'string') {
+                throw new Error('Caminho remoto inválido');
+            }
+
+            try {
+                console.log('Deletando pasta:', remotePath);
+                // removeDir remove recursivamente a pasta e todo seu conteúdo
+                await this.client.removeDir(remotePath);
+                vscode.window.showInformationMessage(`Pasta removida: ${path.basename(remotePath)}`);
+            } catch (error: any) {
+                console.error('Erro ao deletar pasta:', error);
+                throw new Error(`Erro ao remover pasta: ${error.message}`);
+            }
+        });
+    }
+
     async createDirectory(remotePath: string): Promise<void> {
         return this.queueOperation(async () => {
             if (!this.client) {
@@ -304,6 +326,32 @@ export class FtpClient {
                 vscode.window.showInformationMessage(`Pasta sincronizada: ${path.basename(localPath)}`);
             } catch (error: any) {
                 throw new Error(`Erro ao sincronizar pasta: ${error.message}`);
+            }
+        });
+    }
+
+    async downloadFolder(remotePath: string, localPath: string): Promise<void> {
+        return this.queueOperation(async () => {
+            if (!this.client) {
+                throw new Error('Não conectado ao servidor FTP');
+            }
+
+            try {
+                // Criar a pasta local se não existir
+                await fs.promises.mkdir(localPath, { recursive: true });
+
+                // Download da pasta com timeout para evitar travamento
+                const downloadPromise = this.client.downloadToDir(localPath, remotePath);
+                
+                // Adicionar timeout de segurança (10 minutos para grandes pastas)
+                const timeoutPromise = new Promise<never>((_, reject) => {
+                    setTimeout(() => reject(new Error('Download timeout - operação demorou mais que 10 minutos')), 600000);
+                });
+                
+                await Promise.race([downloadPromise, timeoutPromise]);
+                vscode.window.showInformationMessage(`Pasta baixada: ${path.basename(remotePath)}`);
+            } catch (error: any) {
+                throw new Error(`Erro ao baixar pasta: ${error.message}`);
             }
         });
     }

@@ -93,10 +93,38 @@ function registerCommands(context: vscode.ExtensionContext) {
         }
     });
 
+    // Comando para baixar pasta
+    const downloadFolderCommand = vscode.commands.registerCommand('ftpManager.downloadFolder', async (file?: FtpFile) => {
+        await downloadFolder(file);
+    });
+
+    // Comando para baixar pasta da árvore
+    const downloadFolderFromTreeCommand = vscode.commands.registerCommand('ftpManager.downloadFolderFromTree', async (treeItem: any) => {
+        if (treeItem && treeItem.file) {
+            await downloadFolder(treeItem.file);
+        } else {
+            vscode.window.showErrorMessage('Item da árvore inválido para download');
+        }
+    });
+
     // Comando para deletar arquivo da árvore
     const deleteFileFromTreeCommand = vscode.commands.registerCommand('ftpManager.deleteFileFromTree', async (treeItem: any) => {
         if (treeItem && treeItem.file) {
             await deleteFile(treeItem.file);
+        } else {
+            vscode.window.showErrorMessage('Item da árvore inválido para deletar');
+        }
+    });
+
+    // Comando para deletar pasta
+    const deleteFolderCommand = vscode.commands.registerCommand('ftpManager.deleteFolder', async (file?: FtpFile) => {
+        await deleteFolder(file);
+    });
+
+    // Comando para deletar pasta da árvore
+    const deleteFolderFromTreeCommand = vscode.commands.registerCommand('ftpManager.deleteFolderFromTree', async (treeItem: any) => {
+        if (treeItem && treeItem.file) {
+            await deleteFolder(treeItem.file);
         } else {
             vscode.window.showErrorMessage('Item da árvore inválido para deletar');
         }
@@ -147,10 +175,14 @@ function registerCommands(context: vscode.ExtensionContext) {
         uploadMultipleCommand,
         downloadFileCommand,
         downloadFileFromTreeCommand,
+        downloadFolderCommand,
+        downloadFolderFromTreeCommand,
         syncFolderCommand,
         refreshCommand,
         deleteFileCommand,
         deleteFileFromTreeCommand,
+        deleteFolderCommand,
+        deleteFolderFromTreeCommand,
         createFolderCommand,
         addConnectionCommand,
         editConnectionCommand,
@@ -501,6 +533,88 @@ async function downloadFile(file?: FtpFile): Promise<void> {
     }
 }
 
+async function downloadFolder(file?: FtpFile): Promise<void> {
+    if (!ftpClient.isConnected()) {
+        vscode.window.showWarningMessage('Não conectado ao servidor FTP');
+        return;
+    }
+
+    if (!file) {
+        vscode.window.showWarningMessage('Nenhuma pasta selecionada');
+        return;
+    }
+
+    if (!file.path || !file.name) {
+        vscode.window.showErrorMessage('Pasta inválida - path ou name indefinido');
+        console.error('Pasta inválida:', file);
+        return;
+    }
+
+    if (!file.isDirectory) {
+        vscode.window.showWarningMessage('Não é possível baixar um arquivo como pasta. Use "Download File" para arquivos.');
+        return;
+    }
+
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (!workspaceFolders) {
+        vscode.window.showWarningMessage('Nenhuma pasta aberta no workspace');
+        return;
+    }
+
+    // Perguntar ao usuário onde salvar a pasta
+    const folderName = await vscode.window.showInputBox({
+        prompt: 'Nome da pasta local para salvar',
+        placeHolder: file.name,
+        value: file.name
+    });
+
+    if (!folderName) return;
+
+    const localPath = path.join(workspaceFolders[0].uri.fsPath, folderName);
+
+    try {
+        await vscode.window.withProgress({
+            location: vscode.ProgressLocation.Notification,
+            title: `Baixando pasta ${file.name}...`,
+            cancellable: true
+        }, async (progress, token) => {
+            // Verificar cancelamento
+            if (token.isCancellationRequested) {
+                throw new Error('Download cancelado pelo usuário');
+            }
+            
+            progress.report({ message: 'Iniciando download da pasta...' });
+            
+            const downloadPromise = ftpClient.downloadFolder(file.path, localPath);
+            
+            // Monitorar cancelamento
+            const checkCancel = setInterval(() => {
+                if (token.isCancellationRequested) {
+                    clearInterval(checkCancel);
+                    throw new Error('Download cancelado pelo usuário');
+                }
+            }, 1000);
+            
+            try {
+                await downloadPromise;
+                clearInterval(checkCancel);
+                progress.report({ message: 'Download concluído!', increment: 100 });
+            } catch (error) {
+                clearInterval(checkCancel);
+                throw error;
+            }
+        });
+        
+        vscode.window.showInformationMessage(`Pasta ${file.name} baixada com sucesso para ${folderName}`);
+    } catch (error: any) {
+        if (error.message.includes('cancelado')) {
+            vscode.window.showWarningMessage('Download de pasta cancelado');
+        } else {
+            vscode.window.showErrorMessage(`Erro ao baixar pasta: ${error.message}`);
+        }
+    }
+}
+
 async function syncFolder(uri?: vscode.Uri): Promise<void> {
     if (!ftpClient.isConnected()) {
         vscode.window.showWarningMessage('Não conectado ao servidor FTP');
@@ -583,7 +697,7 @@ async function deleteFile(file: FtpFile): Promise<void> {
     }
 
     if (file.isDirectory) {
-        vscode.window.showWarningMessage('Não é possível deletar pastas através desta opção');
+        vscode.window.showWarningMessage('Não é possível deletar pastas através desta opção. Use "Delete Folder".');
         return;
     }
 
@@ -601,6 +715,57 @@ async function deleteFile(file: FtpFile): Promise<void> {
         ftpTreeProvider.refresh();
     } catch (error: any) {
         vscode.window.showErrorMessage(`Erro ao deletar arquivo: ${error.message}`);
+    }
+}
+
+async function deleteFolder(file?: FtpFile): Promise<void> {
+    if (!ftpClient.isConnected()) {
+        vscode.window.showWarningMessage('Não conectado ao servidor FTP');
+        return;
+    }
+
+    if (!file) {
+        vscode.window.showWarningMessage('Nenhuma pasta selecionada');
+        return;
+    }
+
+    if (!file.path || !file.name) {
+        vscode.window.showErrorMessage('Pasta inválida - path ou name indefinido');
+        console.error('Pasta inválida para deletar:', file);
+        return;
+    }
+
+    if (!file.isDirectory) {
+        vscode.window.showWarningMessage('Não é possível deletar um arquivo como pasta. Use "Delete File" para arquivos.');
+        return;
+    }
+
+    console.log('Deletando pasta:', { name: file.name, path: file.path });
+
+    // Confirmação dupla para exclusão de pasta (operação destrutiva)
+    const confirm = await vscode.window.showWarningMessage(
+        `⚠️ ATENÇÃO: Deseja realmente deletar a pasta "${file.name}" e TODO o seu conteúdo?`,
+        { modal: true },
+        'Sim, deletar tudo', 'Cancelar'
+    );
+
+    if (confirm !== 'Sim, deletar tudo') return;
+
+    try {
+        await vscode.window.withProgress({
+            location: vscode.ProgressLocation.Notification,
+            title: `Deletando pasta ${file.name}...`,
+            cancellable: false
+        }, async (progress) => {
+            progress.report({ message: 'Removendo pasta e conteúdo...' });
+            await ftpClient.deleteFolder(file.path);
+            progress.report({ message: 'Concluído!', increment: 100 });
+        });
+        
+        vscode.window.showInformationMessage(`Pasta "${file.name}" removida com sucesso`);
+        ftpTreeProvider.refresh();
+    } catch (error: any) {
+        vscode.window.showErrorMessage(`Erro ao deletar pasta: ${error.message}`);
     }
 }
 

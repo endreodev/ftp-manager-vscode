@@ -2,8 +2,9 @@
   "name": "ftp-manager-vscode",
   "displayName": "FTP Manager",
   "description": "Complete FTP operations extension for VS Code - Upload, Download, and Sync files easily",
-  "version": "1.0.11",
-  "publisher": "ftp-manager",
+  "version": "1.0.14",
+  "license": "MIT",
+  "publisher": "FTPManeger",
   "repository": {
     "type": "git",
     "url": "https://github.com/endreodev/ftp-manager-vscode"
@@ -57,6 +58,21 @@
         "icon": "$(cloud-download)"
       },
       {
+        "command": "ftpManager.downloadFolder",
+        "title": "FTP: Download Folder",
+        "icon": "$(folder-opened)"
+      },
+      {
+        "command": "ftpManager.downloadFileFromTree",
+        "title": "Download File",
+        "icon": "$(cloud-download)"
+      },
+      {
+        "command": "ftpManager.downloadFolderFromTree",
+        "title": "Download Folder",
+        "icon": "$(cloud-download)"
+      },
+      {
         "command": "ftpManager.syncFolder",
         "title": "FTP: Sync Folder",
         "icon": "$(sync)"
@@ -69,6 +85,11 @@
       {
         "command": "ftpManager.deleteFile",
         "title": "FTP: Delete File",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "ftpManager.deleteFolder",
+        "title": "FTP: Delete Folder",
         "icon": "$(trash)"
       },
       {
@@ -92,13 +113,13 @@
         "icon": "$(trash)"
       },
       {
-        "command": "ftpManager.downloadFileFromTree",
-        "title": "Download File",
-        "icon": "$(cloud-download)"
-      },
-      {
         "command": "ftpManager.deleteFileFromTree",
         "title": "Delete File",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "ftpManager.deleteFolderFromTree",
+        "title": "Delete Folder",
         "icon": "$(trash)"
       }
     ],
@@ -156,9 +177,19 @@
           "group": "file@1"
         },
         {
+          "command": "ftpManager.downloadFolderFromTree",
+          "when": "view == ftpExplorer && viewItem == ftpDirectory",
+          "group": "folder@1"
+        },
+        {
           "command": "ftpManager.deleteFileFromTree",
-          "when": "view == ftpExplorer && viewItem == ftpFile", 
+          "when": "view == ftpExplorer && viewItem == ftpFile",
           "group": "file@2"
+        },
+        {
+          "command": "ftpManager.deleteFolderFromTree",
+          "when": "view == ftpExplorer && viewItem == ftpDirectory",
+          "group": "folder@2"
         },
         {
           "command": "ftpManager.editConnection",
@@ -236,40 +267,39 @@
                 "description": "Use FTPS"
               }
             }
-          }
-        ,
-        "ftpManager.telnet": {
-          "type": "object",
-          "scope": "resource",
-          "description": "Telnet settings stored per workspace",
-          "properties": {
-            "enabled": {
-              "type": "boolean",
-              "default": false,
-              "description": "Enable Telnet features for this workspace"
-            },
-            "host": {
-              "type": "string",
-              "default": "",
-              "description": "Telnet host per workspace"
-            },
-            "port": {
-              "type": "number",
-              "default": 23,
-              "description": "Telnet port per workspace"
-            },
-            "username": {
-              "type": "string",
-              "default": "",
-              "description": "Username for telnet in workspace"
-            },
-            "password": {
-              "type": "string",
-              "default": "",
-              "description": "Password for telnet in workspace"
+          },
+          "ftpManager.telnet": {
+            "type": "object",
+            "scope": "resource",
+            "description": "Telnet settings stored per workspace",
+            "properties": {
+              "enabled": {
+                "type": "boolean",
+                "default": false,
+                "description": "Enable Telnet features for this workspace"
+              },
+              "host": {
+                "type": "string",
+                "default": "",
+                "description": "Telnet host per workspace"
+              },
+              "port": {
+                "type": "number",
+                "default": 23,
+                "description": "Telnet port per workspace"
+              },
+              "username": {
+                "type": "string",
+                "default": "",
+                "description": "Username for telnet in workspace"
+              },
+              "password": {
+                "type": "string",
+                "default": "",
+                "description": "Password for telnet in workspace"
+              }
             }
           }
-        }
         }
       }
     }
@@ -294,11 +324,13 @@
     "@types/vscode": "^1.105.0",
     "@vscode/test-cli": "^0.0.12",
     "@vscode/test-electron": "^2.5.2",
+    "archiver": "^7.0.1",
     "esbuild": "^0.27.0",
     "eslint": "^9.39.1",
     "npm-run-all": "^4.1.5",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.46.3"
+    "typescript-eslint": "^8.46.3",
+    "vsce": "^1.103.1"
   },
   "dependencies": {
     "@types/ftp": "^0.3.36",
