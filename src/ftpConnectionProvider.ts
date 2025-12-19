@@ -69,7 +69,7 @@ export class FtpConnectionProvider implements vscode.TreeDataProvider<FtpConnect
         
         connections.push(connection);
         
-    await config.update('connections', connections, vscode.ConfigurationTarget.Workspace);
+        await config.update('connections', connections, vscode.ConfigurationTarget.Workspace);
         this.refresh();
     }
 
@@ -79,7 +79,7 @@ export class FtpConnectionProvider implements vscode.TreeDataProvider<FtpConnect
         
         const filteredConnections = connections.filter(conn => conn.name !== connectionName);
         
-    await config.update('connections', filteredConnections, vscode.ConfigurationTarget.Workspace);
+        await config.update('connections', filteredConnections, vscode.ConfigurationTarget.Workspace);
         this.refresh();
     }
 

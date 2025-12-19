@@ -145,6 +145,16 @@ function registerCommands(context: vscode.ExtensionContext) {
         await deleteFile(file);
     });
 
+    // Comando para deletar múltiplos arquivos
+    const deleteMultipleFilesCommand = vscode.commands.registerCommand('ftpManager.deleteMultipleFiles', async () => {
+        await deleteMultipleFiles();
+    });
+
+    // Comando para deletar múltiplos arquivos remotos
+    const deleteMultipleRemoteFilesCommand = vscode.commands.registerCommand('ftpManager.deleteMultipleRemoteFiles', async () => {
+        await deleteMultipleRemoteFiles();
+    });
+
     // Comando para criar pasta
     const createFolderCommand = vscode.commands.registerCommand('ftpManager.createFolder', async () => {
         await createFolder();
@@ -180,6 +190,8 @@ function registerCommands(context: vscode.ExtensionContext) {
         syncFolderCommand,
         refreshCommand,
         deleteFileCommand,
+        deleteMultipleFilesCommand,
+        deleteMultipleRemoteFilesCommand,
         deleteFileFromTreeCommand,
         deleteFolderCommand,
         deleteFolderFromTreeCommand,
@@ -354,8 +366,8 @@ async function uploadFolder(uri?: vscode.Uri): Promise<void> {
     const folderName = path.basename(folderPath);
     const remotePath = await vscode.window.showInputBox({
         prompt: 'Caminho remoto para a pasta',
-        placeHolder: `/${folderName}`,
-        value: `/${folderName}`
+        placeHolder: '/public_html',
+        value: `/public_html/${folderName}`
     });
 
     if (!remotePath) return;
@@ -715,6 +727,148 @@ async function deleteFile(file: FtpFile): Promise<void> {
         ftpTreeProvider.refresh();
     } catch (error: any) {
         vscode.window.showErrorMessage(`Erro ao deletar arquivo: ${error.message}`);
+    }
+}
+
+async function deleteMultipleFiles(): Promise<void> {
+    if (!ftpClient.isConnected()) {
+        vscode.window.showWarningMessage('Não conectado ao servidor FTP');
+        return;
+    }
+
+    // Abrir diálogo para seleção de múltiplos arquivos
+    const fileUris = await vscode.window.showOpenDialog({
+        canSelectFiles: true,
+        canSelectFolders: false,
+        canSelectMany: true,
+        title: 'Selecione arquivos para deletar no servidor remoto'
+    });
+
+    if (!fileUris || fileUris.length === 0) return;
+
+    const filePaths = fileUris.map(uri => uri.fsPath);
+    const fileNames = filePaths.map(p => path.basename(p));
+
+    // Confirmação de exclusão com lista de arquivos
+    const fileList = fileNames.join('\n  • ');
+    const confirm = await vscode.window.showWarningMessage(
+        `Deseja realmente deletar os seguintes arquivos do servidor remoto?\n\n  • ${fileList}`,
+        { modal: true },
+        'Sim, deletar tudo', 'Cancelar'
+    );
+
+    if (confirm !== 'Sim, deletar tudo') return;
+
+    try {
+        await vscode.window.withProgress({
+            location: vscode.ProgressLocation.Notification,
+            title: `Deletando ${filePaths.length} arquivo(s)...`,
+            cancellable: false
+        }, async (progress) => {
+            let deleted = 0;
+
+            for (const filePath of filePaths) {
+                try {
+                    await ftpClient.deleteFile(filePath);
+                    deleted++;
+                    progress.report({ 
+                        message: `Deletando ${deleted}/${filePaths.length}: ${path.basename(filePath)}`,
+                        increment: (1 / filePaths.length) * 100
+                    });
+                } catch (error: any) {
+                    console.error(`Erro ao deletar ${filePath}:`, error.message);
+                }
+            }
+
+            progress.report({ message: 'Concluído!', increment: 100 });
+        });
+
+        vscode.window.showInformationMessage(`${filePaths.length} arquivo(s) deletado(s) com sucesso!`);
+        ftpTreeProvider.refresh();
+    } catch (error: any) {
+        vscode.window.showErrorMessage(`Erro ao deletar múltiplos arquivos: ${error.message}`);
+    }
+}
+
+async function deleteMultipleRemoteFiles(): Promise<void> {
+    if (!ftpClient.isConnected()) {
+        vscode.window.showWarningMessage('Não conectado ao servidor FTP');
+        return;
+    }
+
+    try {
+        // Obter a lista de arquivos do diretório atual
+        const currentPath = ftpTreeProvider.getCurrentPath();
+        const files = await ftpClient.listFiles(currentPath);
+        
+        // Filtrar apenas arquivos (não pastas)
+        const remoteFiles = files.filter((file: FtpFile) => !file.isDirectory);
+
+        if (remoteFiles.length === 0) {
+            vscode.window.showInformationMessage('Nenhum arquivo encontrado no diretório atual');
+            return;
+        }
+
+        // Criar items para QuickPick com checkboxes
+        const items = remoteFiles.map((file: FtpFile) => ({
+            label: file.name,
+            description: file.path,
+            picked: false,
+            file: file
+        }));
+
+        // Mostrar QuickPick com seleção múltipla
+        const selectedItems = await vscode.window.showQuickPick(items, {
+            canPickMany: true,
+            placeHolder: 'Selecione os arquivos remotos para deletar',
+            title: 'Deletar Múltiplos Arquivos Remotos'
+        });
+
+        if (!selectedItems || selectedItems.length === 0) return;
+
+        const fileNames = selectedItems.map((item: any) => item.label);
+        const fileList = fileNames.join('\n  • ');
+
+        // Confirmação de exclusão
+        const confirm = await vscode.window.showWarningMessage(
+            `Deseja realmente deletar os seguintes arquivos remotos?\n\n  • ${fileList}`,
+            { modal: true },
+            'Sim, deletar tudo', 'Cancelar'
+        );
+
+        if (confirm !== 'Sim, deletar tudo') return;
+
+        try {
+            await vscode.window.withProgress({
+                location: vscode.ProgressLocation.Notification,
+                title: `Deletando ${selectedItems.length} arquivo(s) remoto(s)...`,
+                cancellable: false
+            }, async (progress) => {
+                let deleted = 0;
+
+                for (const item of selectedItems) {
+                    try {
+                        await ftpClient.deleteFile(item.file.path);
+                        deleted++;
+                        progress.report({ 
+                            message: `Deletando ${deleted}/${selectedItems.length}: ${item.label}`,
+                            increment: (1 / selectedItems.length) * 100
+                        });
+                    } catch (error: any) {
+                        console.error(`Erro ao deletar ${item.label}:`, error.message);
+                    }
+                }
+
+                progress.report({ message: 'Concluído!', increment: 100 });
+            });
+
+            vscode.window.showInformationMessage(`${selectedItems.length} arquivo(s) remoto(s) deletado(s) com sucesso!`);
+            ftpTreeProvider.refresh();
+        } catch (error: any) {
+            vscode.window.showErrorMessage(`Erro ao deletar arquivos remotos: ${error.message}`);
+        }
+    } catch (error: any) {
+        vscode.window.showErrorMessage(`Erro ao listar arquivos: ${error.message}`);
     }
 }
 

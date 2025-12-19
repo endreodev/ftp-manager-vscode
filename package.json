@@ -2,7 +2,7 @@
   "name": "ftp-manager-vscode",
   "displayName": "FTP Manager",
   "description": "Complete FTP operations extension for VS Code - Upload, Download, and Sync files easily",
-  "version": "1.0.14",
+  "version": "1.0.17",
   "license": "MIT",
   "publisher": "FTPManeger",
   "repository": {
@@ -85,6 +85,16 @@
       {
         "command": "ftpManager.deleteFile",
         "title": "FTP: Delete File",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "ftpManager.deleteMultipleFiles",
+        "title": "FTP: Delete Multiple Files",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "ftpManager.deleteMultipleRemoteFiles",
+        "title": "FTP: Delete Multiple Remote Files",
         "icon": "$(trash)"
       },
       {
